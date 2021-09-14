@@ -21,7 +21,8 @@ defmodule EctoAutoMigrator.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto, "~>3.0", optional: true}
+      {:ecto, "~>3.0", optional: true},
+      {:ex_doc, "~> 0.24", only: :dev, runtime: false}
     ]
   end
 end
