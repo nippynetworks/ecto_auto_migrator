@@ -1,7 +1,7 @@
 defmodule EctoAutoMigrator.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
   @source_url "https://github.com/nippynetworks/ecto_auto_migrator"
 
   def project do
@@ -9,7 +9,7 @@ defmodule EctoAutoMigrator.MixProject do
       app: :ecto_auto_migrator,
       description: "Automatic migrations for Ecto as part of the application boot process",
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package()

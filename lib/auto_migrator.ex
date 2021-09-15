@@ -34,12 +34,16 @@ defmodule Ecto.AutoMigrator do
         if run_migrations?() do
           load_app()
 
-          for repo <- repos() do
-            {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
-          end
+          run_all_migrations(repos)
         end
 
         :ok
+      end
+
+      def run_all_migrations(repos) do
+        for repo <- repos do
+          {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
+        end
       end
 
       def rollback(repo, version) do
