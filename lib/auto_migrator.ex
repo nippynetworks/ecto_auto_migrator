@@ -34,7 +34,7 @@ defmodule Ecto.AutoMigrator do
         if run_migrations?() do
           load_app()
 
-          run_all_migrations(repos)
+          run_all_migrations(repos())
         end
 
         :ok
