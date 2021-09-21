@@ -1,7 +1,7 @@
 defmodule EctoAutoMigrator.MixProject do
   use Mix.Project
 
-  @version "0.2.1"
+  @version "1.0.0"
   @source_url "https://github.com/nippynetworks/ecto_auto_migrator"
 
   def project do
