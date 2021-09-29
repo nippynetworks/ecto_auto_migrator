@@ -25,11 +25,25 @@ defmodule Ecto.AutoMigrator do
       @impl true
       @spec init(any) :: :ignore
       def init(_args) do
+        create()
         migrate()
 
         :ignore
       end
 
+      # Equiv of mix ecto.create
+      def create() do
+        if run_migrations?() do
+          load_app()
+
+          Enum.each repos, fn repo ->
+            # Attempt to ensure that the DBs are created before progressing
+            repo.__adapter__.storage_up(repo.config)
+          end
+        end
+      end
+
+      # Equiv of mix ecto.migrate
       def migrate() do
         if run_migrations?() do
           load_app()
