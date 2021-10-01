@@ -71,66 +71,50 @@ defmodule Database.Repo.Migrator do
   @doc """
   Entry point
 
+  Equiv of mix ecto.migrate
   Run DB migrations and try to ensure they succeed.
   Specifically we will delete all the DBs if migrations fail and try to re-run migrations from scratch
   """
-  @impl true
-  def migrate() do
-    if run_migrations?() do
-      load_app()
+  def migrate!(args) do
+    Logger.info("Ensuring repos are migrated")
+    load_app()
 
-      try_migrations_1(repos())
+    for repo <- repos(args) do
+      # Specifically don't require success to continue... Just continue and hope for the best...
+      try_migration_1(repo, args)
     end
 
     :ok
   end
 
-  # Run migrations, if they fail then blow away the DBs and retry the migrationss from scratch
-  defp try_migrations_1(repos) do
-    case try_migrations(repos) do
-      :error ->
-        Logger.critical("migration failure. Purging databases to attempt to continue")
+  # Run migrations, if they fail then blow away the DBs and retry the migrations from scratch
+  defp try_migration_1(repo, args) do
+    case migrate_repo(repo, args) do
+      {:error, _error} ->
+        Logger.critical("Repo migration failure. Purging databases to attempt to continue")
 
-        delete_databases(repos)
+        # Drop and recreate repo from scratch
+        recreate_repo(repo, args)
 
         # Retry from scratch and hope we can complete
-        try_migrations_2(repos)
+        try_migration_2(repo, args)
 
       :ok ->
         :ok
     end
   end
 
-  defp try_migrations_2(repos) do
-    case try_migrations(repos) do
-      :error ->
-        Logger.critical("migration retry failure. Continuing, but anticipate that app is unstable")
+  defp try_migration_2(repo, args) do
+    case migrate_repo(repo, args) do
+      {:error, _error} ->
+        Logger.critical(
+          "Repo migration retry failure. Continuing, but anticipate that app is unstable!"
+        )
+
         :error
 
       :ok ->
         :ok
-    end
-  end
-
-  # Delete all database files associated with all 'repos'
-  # Currently assumes sqlite DBs
-  defp delete_databases(repos) do
-    for repo <- repos do
-      repo.__adapter__.storage_down(repo.config)
-      repo.__adapter__.storage_up(repo.config)
-      # Purge all in use connections or we will still be using the old DB files
-      repo.stop(5)
-    end
-  end
-
-  # Try and run migrations, wrapping any exceptions and converting to :error/:ok result
-  defp try_migrations(repos) do
-    try do
-      run_all_migrations(repos)
-    rescue
-      _ -> :error
-    else
-      _ -> :ok
     end
   end
 end
