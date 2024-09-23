@@ -65,7 +65,7 @@ defmodule Ecto.AutoMigrator do
         Logger.info("About to create: #{inspect(repo)}")
 
         try do
-          repo.__adapter__.storage_up(repo.config)
+          repo.adapter().storage_up(repo.config)
         rescue
           e ->
             Logger.error("Error creating Repo: #{inspect(repo)} got #{inspect(e)}")
@@ -80,8 +80,8 @@ defmodule Ecto.AutoMigrator do
       """
       def recreate_repo(repo, args) do
         try do
-          repo.__adapter__.storage_down(repo.config)
-          repo.__adapter__.storage_up(repo.config)
+          repo.adapter().storage_down(repo.config)
+          repo.adapter().storage_up(repo.config)
         rescue
           e ->
             Logger.error("Error deleting and recreating Repo: #{inspect(repo)} got #{inspect(e)}")
